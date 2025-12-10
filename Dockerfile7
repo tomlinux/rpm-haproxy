@@ -1,5 +1,14 @@
 FROM centos:7
 
+
+# 使用华为云 Yum 源
+RUN cd /etc/yum.repos.d/ && \
+    mkdir backup && \
+    mv *.repo backup/ && \
+    curl -o /etc/yum.repos.d/CentOS-Base.repo https://repo.huaweicloud.com/repository/conf/CentOS-7-reg.repo && \
+    yum clean all && \
+    yum makecache
+    
 RUN yum install -y pcre-devel make gcc openssl-devel rpm-build systemd-devel curl sed zlib-devel
 RUN mkdir RPMS
 RUN chmod -R 777 RPMS
