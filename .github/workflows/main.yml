@@ -32,9 +32,10 @@ jobs:
 
       # 6️⃣ 创建 GitHub Release 并上传 RPM 文件
       - name: Create GitHub Release
-        uses: marvinpinto/action-automatic-releases@latest
+        uses: softprops/action-gh-release@v1
         with:
-          title: "Manual RPM Build"
-          automatic_release_tag: "WiP"
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          tag_name: "build-${{ github.run_number }}"
+          name: "Manual RPM Build"
           files: ${{ env.RPM_FILES }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
