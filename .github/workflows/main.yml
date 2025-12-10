@@ -1,19 +1,40 @@
 name: Build RPMs
-on: [push]
+
+# 1️⃣ 手动触发
+on:
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "startsWith(github.event.head_commit.message, 'Build') || startsWith(github.event.head_commit.message, 'Release')"
+
     steps:
-      - name: checkout
+      # 2️⃣ Checkout 代码
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: build
+
+      # 3️⃣ 构建 RPM（通过 Docker）
+      - name: Build RPMs in Docker
         run: |
           make run-docker
-      - uses: marvinpinto/action-automatic-releases@latest
+
+      # 4️⃣ 列出生成的 RPM 文件，调试用
+      - name: List RPM files
+        run: |
+          echo "RPM files:"
+          ls -R RPMS
+
+      # 5️⃣ 收集所有 RPM 文件，设置为环境变量
+      - name: Set RPM_FILES environment variable
+        run: |
+          files=$(find RPMS -name '*.rpm' | tr '\n' ',' | sed 's/,$//')
+          echo "RPM_FILES=$files" >> $GITHUB_ENV
+
+      # 6️⃣ 创建 GitHub Release 并上传 RPM 文件
+      - name: Create GitHub Release
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          title: "WiP RPM Build"
+          title: "Manual RPM Build"
           automatic_release_tag: "WiP"
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          files: |
-            RPMS/**/*.rpm
+          files: ${{ env.RPM_FILES }}
